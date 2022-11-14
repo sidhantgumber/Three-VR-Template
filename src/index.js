@@ -18,14 +18,15 @@ const contentElement = document.querySelector('#content-wrapper');
 
 /* Define Three variables */
 let camera, controls, scene, renderer, aspectHeight, aspectWidth, gridHelper, textureLoader, loader, controller1, controller2;
-
-console.log("git test");
+var player = new THREE.Object3D();
+player.position.set(0,0,0);
 
 const objects = [];
 const cubes = [];
 
 let raycaster;
 let shootRaycaster;
+let teleportRaycaster;
 
 let moveForward = false;
 let moveBackward = false;
@@ -40,7 +41,7 @@ const velocity = new THREE.Vector3();
 const direction = new THREE.Vector3();
 const vertex = new THREE.Vector3();
 const color = new THREE.Color();
-
+// const ground = new THREE.Object3D();
 const lightColor = 0xFFFFFF;
 const intensity = 2;
 const light = new THREE.HemisphereLight(lightColor , intensity);
@@ -81,6 +82,11 @@ plane.material.side = THREE.DoubleSide;
 scene.add(plane);
 return plane;
 }
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(200,200,200,200), new THREE.MeshBasicMaterial({color: 'grey', side: THREE.DoubleSide}));
+ground.rotation.set(-Math.PI/2,0,0);
+ground.position.set(0,8,0);
+ground.receiveShadow = true
+    // ground = makePlane('grey',0,8,0, -Math.PI/2,0,0,true,scene);
 const geometry = new THREE.BoxGeometry(4, 4, 4);
 
 // const player = null;
@@ -179,7 +185,8 @@ const initThreeJS = async () => {
     shootPoint.position.set(0,14,0);
     shootPoint.scale.set(0.1,0.1,0.1);
     
-    const ground = makePlane('grey',0,8,0, -Math.PI/2,0,0,true,scene);
+
+    scene.add(ground)
     const wall1 = makePlane('yellow',100,100,0,0,-Math.PI/2,0,true,scene);
     const wall2 = makePlane('yellow',-100,100,0,0,-Math.PI/2,0,true,scene);
     const wall3 = makePlane('white',0,100,-100,0,0,0,true,scene);
@@ -221,29 +228,25 @@ const initThreeJS = async () => {
     controller1 = SceneSetup.Controller(renderer,scene,0)
     controller2 = SceneSetup.Controller(renderer,scene,1)
 
-    controller1.addEventListener('selectstart', onSelectStart);
-    controller1.addEventListener('selectend', onSelectEnd);
+    controller1.addEventListener('selectstart', onSelectStart1);
+    controller1.addEventListener('selectend', onSelectEnd1);
 
-    controller2.addEventListener('selectstart', onSelectStart);
-    controller2.addEventListener('selectend', onSelectEnd);
+ 
+    
+    controller2.addEventListener('selectstart', onSelectStart2);
+    controller2.addEventListener('selectend', onSelectEnd2);
 
-    // player = new THREE.Mesh(new THREE.PlaneGeometry(00,00,00,00));
+  
     
     /* Define controls */
     controls = SceneSetup.controls(camera, renderer.domElement);
-
-    
-const playerGeometry = new THREE.BoxGeometry(0, 0, 0);
-const playerMat = new THREE.MeshBasicMaterial();
-const player = new THREE.Mesh(playerGeometry,playerMat);
-
-        player.add(camera);
-        player.add(controller1);
-        player.add(controller2);
-        player.position.set(0,12,0);
-    
-  
-
+    player.add(camera);
+    player.add(controller1)
+    player.add(controller2)
+    // player.add(controls);
+   
+    // player.position.set(0,12,0);
+    // teleport(100,200)
     /* Configurate controls */
     
         controls.maxPolarAngle = (0.9 * Math.PI) / 2;
@@ -370,13 +373,71 @@ function setInputKeys(){
     document.addEventListener( 'keydown', onKeyDown );
     document.addEventListener( 'keyup', onKeyUp );
 }
-function onSelectStart()
+
+// 1 is right controller 2 is left controller
+
+
+function onSelectStart1()
 {
- console.log("button pressed");
+ console.log("button pressed 1");
 }
-function onSelectEnd()
+function onSelectEnd1()
 {
-console.log("button released");
+console.log("button released 1");
+teleportRaycaster = new THREE.Raycaster();
+let direction = new THREE.Vector3();
+// direction*=-1;
+controller1.getWorldDirection(direction);
+// console.log(direction);
+// direction*=-1;
+direction.multiplyScalar(-1);
+// console.log(direction);
+// direction += Math.PI/2;
+teleportRaycaster.set(controller1.position, direction, 100, 100);
+scene.add(new THREE.ArrowHelper(teleportRaycaster.ray.direction, teleportRaycaster.ray.origin, 300, 0xff0000));
+const groundIntersection = teleportRaycaster.intersectObject(ground);
+if(groundIntersection)
+{
+    console.log(groundIntersection[0].point.x,groundIntersection[0].point.z);
+    player.position.set(groundIntersection[0].point.x, player.position.y, groundIntersection[0].point.z);
+    
+}
+
+
+}
+
+function onSelectStart2()
+{
+ console.log("button pressed 2");
+}
+function onSelectEnd2()
+{
+    teleportRaycaster = new THREE.Raycaster();
+    let direction = new THREE.Vector3();
+    // direction*=-1;
+    controller2.getWorldDirection(direction);
+    // console.log(direction);
+    // direction*=-1;
+    direction.multiplyScalar(-1);
+    // console.log(direction);
+    // direction += Math.PI/2;
+    teleportRaycaster.set(controller2.position, direction, 100, 100);
+    scene.add(new THREE.ArrowHelper(teleportRaycaster.ray.direction, teleportRaycaster.ray.origin, 300, 0xff0000));
+    const groundIntersection = teleportRaycaster.intersectObject(ground);
+    if(groundIntersection)
+    {
+        console.log(groundIntersection[0].point.x,groundIntersection[0].point.z);
+        player.position.set(groundIntersection[0].point.x, player.position.y, groundIntersection[0].point.z);
+        
+    }
+
+}
+
+function teleport(xpos,zpos)
+{
+    controller1.position.set(xpos,controller1.position.y,zpos);
+    controller2.position.set(xpos,controller2.position.y,zpos);
+    camera.position.set(xpos, camera.position.y, zpos);
 }
 function addFloor(){
     raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 10 );

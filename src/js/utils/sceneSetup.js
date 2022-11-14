@@ -39,9 +39,9 @@ export const Controller = (renderer, scene, index) => {
 
     const line = new THREE.Line( geometry);
     line.name = 'line';
-    line.scale.z = 20;
+    line.scale.z = 100;
 
-    controller.add(line.clone());
+    // controller.add(line.clone());
 
     let controllerGrip = renderer.xr.getControllerGrip(index);
     controllerGrip.add(controllerModelFactory.createControllerModel(controllerGrip));
