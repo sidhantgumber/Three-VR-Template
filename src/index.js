@@ -19,7 +19,7 @@ const contentElement = document.querySelector('#content-wrapper');
 /* Define Three variables */
 let camera, controls, scene, renderer, aspectHeight, aspectWidth, gridHelper, textureLoader, loader, controller1, controller2;
 
-
+console.log("git test");
 
 const objects = [];
 const cubes = [];
