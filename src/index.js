@@ -396,7 +396,7 @@ direction.multiplyScalar(-1);
 teleportRaycaster.set(controller1.position, direction, 100, 100);
 scene.add(new THREE.ArrowHelper(teleportRaycaster.ray.direction, teleportRaycaster.ray.origin, 300, 0xff0000));
 const groundIntersection = teleportRaycaster.intersectObject(ground);
-if(groundIntersection)
+if(groundIntersection[0])
 {
     console.log(groundIntersection[0].point.x,groundIntersection[0].point.z);
     player.position.set(groundIntersection[0].point.x, player.position.y, groundIntersection[0].point.z);
@@ -424,7 +424,7 @@ function onSelectEnd2()
     teleportRaycaster.set(controller2.position, direction, 100, 100);
     scene.add(new THREE.ArrowHelper(teleportRaycaster.ray.direction, teleportRaycaster.ray.origin, 300, 0xff0000));
     const groundIntersection = teleportRaycaster.intersectObject(ground);
-    if(groundIntersection)
+    if(groundIntersection[0])
     {
         console.log(groundIntersection[0].point.x,groundIntersection[0].point.z);
         player.position.set(groundIntersection[0].point.x, player.position.y, groundIntersection[0].point.z);
@@ -433,12 +433,12 @@ function onSelectEnd2()
 
 }
 
-function teleport(xpos,zpos)
-{
-    controller1.position.set(xpos,controller1.position.y,zpos);
-    controller2.position.set(xpos,controller2.position.y,zpos);
-    camera.position.set(xpos, camera.position.y, zpos);
-}
+// function teleport(xpos,zpos)
+// {
+//     controller1.position.set(xpos,controller1.position.y,zpos);
+//     controller2.position.set(xpos,controller2.position.y,zpos);
+//     camera.position.set(xpos, camera.position.y, zpos);
+// }
 function addFloor(){
     raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 10 );
 
