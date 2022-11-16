@@ -242,7 +242,7 @@ const initThreeJS = async () => {
     controls = SceneSetup.controls(camera, renderer.domElement);
     player.add(camera);
     player.add(controller1)
-    player.add(controller2)
+    player.add(controller2) 
     // player.add(controls);
    
     // player.position.set(0,12,0);
